@@ -50,6 +50,7 @@ namespace DiscoGrid
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(450, 450);
             this.Controls.Add(this.pictureBox);
+            this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Name = "DiscoForm";
             this.Text = "DiscoGrid";
