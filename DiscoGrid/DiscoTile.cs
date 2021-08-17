@@ -53,9 +53,16 @@ namespace DiscoGrid
             }
         }
 
-        public DiscoTile(int x, int y, int wid, int hgt)
+        private Point _Location;
+        public Point Location
         {
-            _Rectangle = new Rectangle(new Point(x * wid, y * hgt), new Size(wid, hgt));
+            get { return _Location; }
+        }
+
+        public DiscoTile(Rectangle rectangle, int row, int col)
+        {
+            _Rectangle = rectangle;
+            _Location = new Point(row, col);
         }
 
         /// <summary>
