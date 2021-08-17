@@ -1,52 +1,57 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace DiscoGrid
 {
     static class Functions
     {
-
-        private static DiscoTile[,] DiscoTiles = new DiscoTile[0,0];
+        private static List<DiscoTile> DiscoTileList = new List<DiscoTile>();
 
         #region Tile Iteration
 
+        /// <summary>
+        /// Populate a list of tiles
+        /// </summary>
+        /// <param name="form"></param>
         public static void MakeGrid(DiscoForm form)
         {
-            DiscoTiles = new DiscoTile[form.GridSize.Width, form.GridSize.Height];
             Bitmap bitmap = (Bitmap)form.pictureBox.Image.Clone();
             Size cellSize = new Size(bitmap.Width / form.GridSize.Width, bitmap.Height / form.GridSize.Height);
             for (int i = 0; i < form.GridSize.Width; i++)
             {
                 for (int j = 0; j < form.GridSize.Height; j++)
                 {
-                    // Might as well be a list, but a 2D array could come in handy
-                    DiscoTiles[i, j] = new DiscoTile(i, j, cellSize.Width, cellSize.Height);
+                    DiscoTileList.Add(new DiscoTile(i, j, cellSize.Width, cellSize.Height));
                 }
             }
             DrawGrid(form);
         }
 
+        /// <summary>
+        /// Toggle the highlight param for the tile under the cursor
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="form"></param>
         public static void HighlightDiscoTile(Point position, DiscoForm form)
         {
             Point zoomPos = ZoomMousePos(position, form);
-            foreach (DiscoTile tile in DiscoTiles)
-            {
-                if (tile.Rectangle.Contains(zoomPos))
-                {
-                    tile.Highlight = true;
-                }
-                else
-                {
-                    tile.Highlight = false;
-                }
-            }
+            DiscoTileList.ForEach(x => x.Highlight = x.Rectangle.Contains(zoomPos));     
             DrawTiles(form);
         }
 
+        /// <summary>
+        /// Change the color of the tile under the cursor
+        /// </summary>
+        /// <param name="click"></param>
+        /// <param name="form"></param>
+        /// <param name="waitForExit"></param>
         public static void ClickDiscoTile(Point click, DiscoForm form, bool waitForExit = false)
         {
             Point zoomClick = ZoomMousePos(click, form);
-            foreach (DiscoTile tile in DiscoTiles)
+            foreach (DiscoTile tile in DiscoTileList.Where(x => x.Rectangle.Contains(zoomClick)))
             {
                 if (tile.Rectangle.Contains(zoomClick))
                 {
@@ -67,7 +72,7 @@ namespace DiscoGrid
             Bitmap bitmap = (Bitmap)form.pictureBox.Image.Clone();
             using (Graphics g = Graphics.FromImage(bitmap))
             {
-                foreach (DiscoTile tile in DiscoTiles)
+                foreach (DiscoTile tile in DiscoTileList.Where(x => x.NeedsUpdate))
                 {
                     g.DrawRectangle(
                         new Pen(new SolidBrush(Color.Black), 1), 
@@ -80,10 +85,14 @@ namespace DiscoGrid
 
         private static void DrawTiles(DiscoForm form)
         {
+            // For timing how long a process takes
+            Stopwatch sw = new Stopwatch();
+            sw.Restart();
+
             Bitmap bitmap = (Bitmap)form.pictureBox.BackgroundImage.Clone();
             using (Graphics g = Graphics.FromImage(bitmap))
             {
-                foreach (DiscoTile tile in DiscoTiles)
+                foreach (DiscoTile tile in DiscoTileList.Where(x => x.NeedsUpdate))
                 {
                     if (tile.Highlight) 
                     {
@@ -101,10 +110,20 @@ namespace DiscoGrid
                 }
             }
             form.pictureBox.BackgroundImage = bitmap;
+
+            // Output the time for this method's duration
+            sw.Stop();
+            Debug.WriteLine(sw.Elapsed);
         }
 
         #endregion
 
+        /// <summary>
+        /// Copy paste method for adjusting mouse pos to pictureBox set to Zoom
+        /// </summary>
+        /// <param name="click"></param>
+        /// <param name="form"></param>
+        /// <returns></returns>
         public static Point ZoomMousePos(Point click, DiscoForm form)
         {
             PictureBox pbx = form.pictureBox;
