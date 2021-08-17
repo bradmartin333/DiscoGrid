@@ -12,10 +12,6 @@ namespace DiscoGrid
             {
                 return _GridSize;
             }
-            set
-            {
-                _GridSize = value;
-            }
         }
 
         public DiscoForm()
@@ -46,12 +42,14 @@ namespace DiscoGrid
 
         private void PictureBox_MouseMove(object? sender, MouseEventArgs e)
         {
+            if (e.Button == MouseButtons.Left)
+                Functions.ClickDiscoTile(e.Location, this, waitForExit: true);
             Functions.HighlightDiscoTile(e.Location, this);
         }
 
         private void PictureBox_MouseUp(object? sender, MouseEventArgs e)
         {
             Functions.ClickDiscoTile(e.Location, this);
-        }       
+        }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Forms;
 
 namespace DiscoGrid
@@ -20,6 +19,7 @@ namespace DiscoGrid
             {
                 for (int j = 0; j < form.GridSize.Height; j++)
                 {
+                    // Might as well be a list, but a 2D array could come in handy
                     DiscoTiles[i, j] = new DiscoTile(i, j, cellSize.Width, cellSize.Height);
                 }
             }
@@ -43,13 +43,15 @@ namespace DiscoGrid
             DrawTiles(form);
         }
 
-        public static void ClickDiscoTile(Point click, DiscoForm form)
+        public static void ClickDiscoTile(Point click, DiscoForm form, bool waitForExit = false)
         {
             Point zoomClick = ZoomMousePos(click, form);
             foreach (DiscoTile tile in DiscoTiles)
             {
                 if (tile.Rectangle.Contains(zoomClick))
                 {
+                    if (waitForExit && tile.Highlight)
+                        return;
                     tile.ChangeColor();
                 }
             }
@@ -83,16 +85,18 @@ namespace DiscoGrid
             {
                 foreach (DiscoTile tile in DiscoTiles)
                 {
-                    Color color = bitmap.GetPixel(tile.Rectangle.X, tile.Rectangle.Y);
-
-                    if (tile.Highlight)
+                    if (tile.Highlight) 
                     {
+                        // Take advantage of the fact that a cell is highlighted when it changes color
                         g.FillRectangle(new SolidBrush(tile.Color), tile.Rectangle);
                         g.FillRectangle(new SolidBrush(Color.FromArgb(90, Color.Black)), tile.Rectangle);
                     }
-                    else if (color != tile.Color)
+                    else
                     {
-                        g.FillRectangle(new SolidBrush(tile.Color), tile.Rectangle);
+                        // Look for previously highlighted cells
+                        double A = bitmap.GetPixel(tile.Rectangle.X, tile.Rectangle.Y).A;
+                        if (A != 0 && A != 100)
+                            g.FillRectangle(new SolidBrush(tile.Color), tile.Rectangle);
                     }
                 }
             }
