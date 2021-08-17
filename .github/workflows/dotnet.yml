@@ -19,7 +19,10 @@ jobs:
         dotnet-version: 3.1.x
     - name: restore dependencies
       run: dotnet restore
+      working-directory: ./DiscoGrid
     - name: Build
       run: dotnet build --no-restore
+      working-directory: ./DiscoGrid
     - name: Test
       run: dotnet test --no-build --verbosity normal
+      working-directory: ./DiscoGrid
