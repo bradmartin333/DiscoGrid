@@ -6,7 +6,7 @@ namespace DiscoGrid
 {
     public partial class DiscoForm : Form
     {
-        private Size _GridSize = new Size(10, 10);
+        private Size _GridSize = new Size(40, 40);
         public Size GridSize { 
             get
             {
@@ -23,12 +23,24 @@ namespace DiscoGrid
             InitializeComponent();
             pictureBox.MouseUp += PictureBox_MouseUp;
             pictureBox.MouseMove += PictureBox_MouseMove;
+            pictureBox.MouseEnter += PictureBox_MouseEnter;
+            pictureBox.MouseLeave += PictureBox_MouseLeave;
+        }
+
+        private void PictureBox_MouseLeave(object? sender, EventArgs e)
+        {
+            Cursor.Show();
+        }
+
+        private void PictureBox_MouseEnter(object? sender, EventArgs e)
+        {
+            Cursor.Hide();
         }
 
         private void DiscoForm_Load(object sender, EventArgs e)
         {
-            pictureBox.BackgroundImage = new Bitmap(450, 450);
-            pictureBox.Image = new Bitmap(450, 450);
+            pictureBox.BackgroundImage = new Bitmap(1000, 1000);
+            pictureBox.Image = new Bitmap(1000, 1000);
             Functions.MakeGrid(this);
         }
 

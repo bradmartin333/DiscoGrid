@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace DiscoGrid
@@ -66,7 +67,10 @@ namespace DiscoGrid
             {
                 foreach (DiscoTile tile in DiscoTiles)
                 {
-                    g.DrawRectangle(new Pen(new SolidBrush(Color.Black), 5), tile.Rectangle);
+                    g.DrawRectangle(
+                        new Pen(new SolidBrush(Color.Black), 1), 
+                        tile.Rectangle
+                    );
                 }
             }
             form.pictureBox.Image = bitmap;
@@ -79,11 +83,16 @@ namespace DiscoGrid
             {
                 foreach (DiscoTile tile in DiscoTiles)
                 {
-                    g.FillRectangle(new SolidBrush(tile.Color), tile.Rectangle);
+                    Color color = bitmap.GetPixel(tile.Rectangle.X, tile.Rectangle.Y);
 
                     if (tile.Highlight)
                     {
-                        g.FillRectangle(new SolidBrush(Color.FromArgb(80, Color.Black)), tile.Rectangle);
+                        g.FillRectangle(new SolidBrush(tile.Color), tile.Rectangle);
+                        g.FillRectangle(new SolidBrush(Color.FromArgb(90, Color.Black)), tile.Rectangle);
+                    }
+                    else if (color != tile.Color)
+                    {
+                        g.FillRectangle(new SolidBrush(tile.Color), tile.Rectangle);
                     }
                 }
             }
